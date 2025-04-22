@@ -6,7 +6,7 @@ export type FieldConfig = {
   id: string; // Уникальный ID (field name)
   zone: ZoneType;
   sort?: 'asc' | 'desc';
-  aggregation?: 'sum' | 'avg' | 'count' | 'min' | 'max';
+  aggregation?: string;
 };
 
 export type ConfigContextType = {
@@ -14,6 +14,8 @@ export type ConfigContextType = {
   moveFieldToZone: (fieldId: string, zone: ZoneType) => void;
   getFieldsForZone: (zone: ZoneType) => FieldConfig[];
   updateFieldConfig: (fieldId: string, updates: Partial<FieldConfig>) => void;
+  aggregations: string[];
+  updateZoneFields: (zone: ZoneType, updatedFields: FieldConfig[]) => void;
 };
 
 export const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
@@ -24,12 +26,14 @@ function ConfigProvider({
   initialConfig,
   onChange,
   onFieldUpdate,
+  aggregations,
 }: {
   children: React.ReactNode;
   availableFields: string[];
   initialConfig?: FieldConfig[];
   onChange?: (fields: FieldConfig[]) => void;
   onFieldUpdate?: (field: FieldConfig) => void;
+  aggregations: string[];
 }) {
   const [fields, setFields] = useState<FieldConfig[]>(() => {
     const configById = new Map(initialConfig?.map((f) => [f.id, f]) || []);
@@ -72,11 +76,28 @@ function ConfigProvider({
     return fields.filter((f) => f.zone === zone);
   };
 
-  console.log(fields, 'fieldsConfig');
+  type FieldConfig = {
+    id: string;
+    zone: ZoneType;
+  };
+
+  const updateZoneFields = (zone: ZoneType, updatedFields: FieldConfig[]) => {
+    setFields((prev) => {
+      const others = prev.filter((f) => f.zone !== zone);
+      return [...others, ...updatedFields];
+    });
+  };
 
   return (
     <ConfigContext.Provider
-      value={{ fields, updateFieldConfig, moveFieldToZone, getFieldsForZone }}
+      value={{
+        fields,
+        updateFieldConfig,
+        moveFieldToZone,
+        getFieldsForZone,
+        aggregations,
+        updateZoneFields,
+      }}
     >
       {children}
     </ConfigContext.Provider>

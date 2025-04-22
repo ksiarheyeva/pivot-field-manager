@@ -12,9 +12,7 @@ import { GripVertical } from 'lucide-react';
 import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 
 function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
-  console.log(field, 'FIELD');
-
-  const { moveFieldToZone, updateFieldConfig } = usePivotConfig();
+  const { moveFieldToZone, updateFieldConfig, aggregations } = usePivotConfig();
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: field.id,
   });
@@ -54,16 +52,21 @@ function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
       <span>{field.id}</span>
 
       {zone === 'values' && (
-        <Select onValueChange={handleAggregationChange} defaultValue={field.aggregation}>
+        <Select
+          onValueChange={handleAggregationChange}
+          defaultValue={
+            field.aggregation && aggregations.includes(field.aggregation) ? field.aggregation : ''
+          }
+        >
           <SelectTrigger className="h-6">
             <SelectValue placeholder="agg" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="sum">sum</SelectItem>
-            <SelectItem value="avg">avg</SelectItem>
-            <SelectItem value="count">count</SelectItem>
-            <SelectItem value="min">min</SelectItem>
-            <SelectItem value="max">max</SelectItem>
+            {aggregations.map((agg) => (
+              <SelectItem value={`${agg}`} key={agg}>
+                {agg}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       )}
