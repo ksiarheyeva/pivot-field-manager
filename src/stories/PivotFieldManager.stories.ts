@@ -24,11 +24,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const PivotFieldManagerEmpty: Story = {};
+export const PivotFieldManagerEmpty: Story = {
+  args: {
+    fields: [],
+    initialConfig: []
+  },
+};
 
 export const PivotFieldManagerDefaultFields: Story = {
   args: {
     fields: ['country', 'city', 'sales', 'date', 'category'],
+    initialConfig: []
   },
 };
 
