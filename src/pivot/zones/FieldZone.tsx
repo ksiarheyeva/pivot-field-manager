@@ -54,9 +54,10 @@ function FieldZone({ type }: { type: ZoneType }) {
       >
         <div className="flex justify-between mb-3">
           <h3 className="text-sm font-semibold capitalize mb-2">{type}</h3>
-          <div className="relative ">
-            {fields.length !== 0 && fields.length !== 1 ? (
-              <div className="flex gap-2 ml-1">
+
+          {fields.length !== 0 && fields.length !== 1 ? (
+            <div className="flex gap-2 ml-1">
+              <div className="relative ">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Field search..."
@@ -72,23 +73,23 @@ function FieldZone({ type }: { type: ZoneType }) {
                     ✕
                   </button>
                 )}
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={toggleSort}
-                  className={sortState === 'default' ? 'opacity-40' : 'text-accent-500'}
-                  disabled={fields.length === 0 || fields.length === 1}
-                >
-                  {sortState === 'default' && <AArrowUp className="w-4 h-4" />}
-                  {sortState === 'asc' && <AArrowUp className="w-4 h-4" />}
-                  {sortState === 'desc' && <AArrowDown className="w-4 h-4" />}
-                </Button>
               </div>
-            ) : (
-              ''
-            )}
-          </div>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleSort}
+                className={sortState === 'default' ? 'opacity-40' : 'text-accent-500'}
+                disabled={fields.length === 0 || fields.length === 1}
+              >
+                {sortState === 'default' && <AArrowUp className="w-4 h-4" />}
+                {sortState === 'asc' && <AArrowUp className="w-4 h-4" />}
+                {sortState === 'desc' && <AArrowDown className="w-4 h-4" />}
+              </Button>
+            </div>
+          ) : (
+            ''
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2">
