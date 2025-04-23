@@ -61,7 +61,6 @@ function PivotFieldManager({
     if (errors.length > 0) {
       console.error('❌ Invalid Pivot Config:', errors);
       setValidationErrors(errors);
-      // Можно бросить ошибку или отобразить предупреждение в UI
     }
   }, [fields, initialConfig, aggregations]);
 

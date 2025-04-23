@@ -14,9 +14,9 @@ function ConfigViewerPopover() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(JSON.stringify(fields, null, 2));
-      toast.success('Сконфигурировано и скопировано!');
+      toast.success('Configured and copied!');
     } catch {
-      toast.error('Не удалось скопировать.');
+      toast.error('Failed to copy.');
     }
   };
 

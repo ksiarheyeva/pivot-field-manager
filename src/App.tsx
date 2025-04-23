@@ -4,14 +4,14 @@ import PivotFieldManager from './pivot/PivotFieldManager';
 
 function App() {
   const handleConfigChange = (config: FieldConfig[]) => {
-    console.log('🔄 Конфигурация обновлена:', config);
+    console.log('🔄 Configuration updated:', config);
   };
 
   const handleFieldUpdate = (updatedField: FieldConfig) => {
-    console.log('🛠️ Поле обновлено:', updatedField);
+    console.log('🛠️ Field updated:', updatedField);
   };
 
-  const aggregations = ['sum', 'avg', 'count', 'min', 'max', 'kkk'];
+  const aggregations = ['sum', 'avg', 'count', 'min', 'max'];
 
   return (
     <>
@@ -19,11 +19,8 @@ function App() {
         <h1 className="text-xl font-bold mb-4">Pivot Manager Demo</h1>
         <PivotFieldManager
           fields={[
-            // 'country',
-            // 'city',
             'sales',
             'date',
-            // 'category',
             'order_id',
             'customer_id',
             'customer_name',

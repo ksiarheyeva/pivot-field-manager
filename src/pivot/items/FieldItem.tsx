@@ -44,7 +44,6 @@ function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
       style={style}
       className="flex items-center gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab"
     >
-      {/* Drag handle */}
       <span {...listeners} className="cursor-grab">
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </span>
@@ -89,7 +88,7 @@ function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
           variant="ghost"
           className="ml-auto text-xs"
           onClick={(e) => {
-            e.stopPropagation(); // ⛔️ предотврати drag
+            e.stopPropagation();
             handleMove('available');
           }}
         >

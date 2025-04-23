@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 export type ZoneType = 'available' | 'rows' | 'columns' | 'filters' | 'values';
 
 export type FieldConfig = {
-  id: string; // Уникальный ID (field name)
+  id: string; // Unique ID (field name)
   zone: ZoneType;
   sort?: 'asc' | 'desc';
   aggregation?: string;
@@ -38,7 +38,7 @@ function ConfigProvider({
   const [fields, setFields] = useState<FieldConfig[]>(() => {
     const configById = new Map(initialConfig?.map((f) => [f.id, f]) || []);
 
-    // Гарантируем, что все переданные поля окажутся в конфигурации
+    // Ensures that all passed fields are in the configuration
     return availableFields.map((id) => configById.get(id) || { id, zone: 'available' });
   });
 
