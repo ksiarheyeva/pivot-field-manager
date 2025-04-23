@@ -47,16 +47,16 @@ function ConfigProvider({
   }, [fields, onChange]);
 
   const moveFieldToZone = (fieldId: string, zone: ZoneType) => {
-    setFields((prev) =>
-      prev.map((field) => {
-        if (field.id === fieldId) {
-          const updated = { ...field, zone };
-          if (onFieldUpdate) onFieldUpdate(updated);
-          return updated;
-        }
-        return field;
-      }),
-    );
+    setFields((prev) => {
+      const updatedFields = prev.filter((f) => f.id !== fieldId);
+      const moved = prev.find((f) => f.id === fieldId);
+      if (!moved) return prev;
+
+      const updated = { ...moved, zone };
+      if (onFieldUpdate) onFieldUpdate(updated);
+
+      return [...updatedFields, updated];
+    });
   };
 
   const updateFieldConfig = (fieldId: string, updates: Partial<FieldConfig>) => {
