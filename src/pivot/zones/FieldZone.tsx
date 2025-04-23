@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useDroppable } from '@dnd-kit/core';
 import { AArrowDown, AArrowUp } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { usePivotConfig, ZoneType } from '../config/ConfigContext';
 import FieldItem from '../items/FieldItem';
@@ -12,7 +12,6 @@ function FieldZone({ type }: { type: ZoneType }) {
   const { setNodeRef, isOver } = useDroppable({ id: type });
 
   const [sortState, setSortState] = useState('default');
-  const initialRef = useRef(fields);
 
   function toggleSort() {
     const next = sortState === 'default' ? 'asc' : sortState === 'asc' ? 'desc' : 'default';
@@ -20,7 +19,6 @@ function FieldZone({ type }: { type: ZoneType }) {
     setSortState(next);
 
     let sorted;
-
     if (next === 'asc') {
       sorted = [...fields]
         .sort((a, b) => a.id.localeCompare(b.id))
@@ -30,7 +28,7 @@ function FieldZone({ type }: { type: ZoneType }) {
         .sort((a, b) => b.id.localeCompare(a.id))
         .map((f) => ({ ...f, zone: type }));
     } else {
-      sorted = initialRef.current.filter((f) => f.zone === type);
+      sorted = fields.filter((f) => f.zone === type);
     }
 
     updateZoneFields(type, sorted);
@@ -40,8 +38,8 @@ function FieldZone({ type }: { type: ZoneType }) {
     <div className="grid grid-flow-col">
       <div
         ref={setNodeRef}
-        className={`overflow-auto border p-2 rounded max-h-60 min-h-[80px] transition-colors ${
-          isOver ? 'bg-accent' : 'bg-background'
+        className={`border rounded p-2 min-h-[50px] transition-colors ${
+          isOver ? 'bg-gray-100' : 'bg-white'
         }`}
       >
         <div className="flex justify-between mb-5">
@@ -52,6 +50,7 @@ function FieldZone({ type }: { type: ZoneType }) {
               size="icon"
               onClick={toggleSort}
               className={sortState === 'default' ? 'opacity-40' : 'text-accent-500'}
+              disabled={fields.length === 0 || fields.length === 1}
             >
               {sortState === 'default' && <AArrowUp className="w-4 h-4" />}
               {sortState === 'asc' && <AArrowUp className="w-4 h-4" />}
