@@ -43,8 +43,9 @@ function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
       {...attributes}
       style={style}
       className="flex items-center gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab"
+      {...listeners}
     >
-      <span {...listeners} className="cursor-grab">
+      <span className="cursor-grab">
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </span>
 

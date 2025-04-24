@@ -42,7 +42,9 @@ function FieldZone({ type }: { type: ZoneType }) {
     updateZoneFields(type, sorted);
   }
 
-  const filteredFields = fields.filter((f) => f.id.toLowerCase().startsWith(search.toLowerCase()));
+  const filteredFields = fields.filter((field) =>
+    field.id.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="grid grid-flow-col">
