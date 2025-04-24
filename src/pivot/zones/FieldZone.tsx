@@ -77,7 +77,7 @@ function FieldZone({ type }: { type: ZoneType }) {
                   placeholder="Field search..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8"
+                  className="pl-8 text-sm"
                 />
                 {search && (
                   <button

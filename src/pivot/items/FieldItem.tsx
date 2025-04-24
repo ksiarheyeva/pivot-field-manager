@@ -41,7 +41,7 @@ function FieldItem({
           pointerEvents: 'none', // Отключаем pointer events для overlay
           zIndex: 9999,
         }}
-        className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm shadow-lg overflow-hidden select-none"
+        className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm shadow-lg overflow-hidden select-none min-h-12"
       >
         <div {...listeners} className="flex flex-1 items-center gap-2">
           <span className="cursor-grab">
@@ -73,7 +73,7 @@ function FieldItem({
       ref={setNodeRef}
       {...attributes}
       style={style}
-      className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab select-none"
+      className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab select-none min-h-12"
     >
       <div {...listeners} className="flex flex-1 items-center gap-2">
         <span className="cursor-grab">
@@ -120,7 +120,7 @@ function FieldItem({
           <Button
             size="sm"
             variant="ghost"
-            className="ml-auto text-xs cursor-pointer"
+            className="ml-auto text-xs cursor-pointer hover:bg-gray-200 text-gray-600 h-auto"
             onClick={(e) => {
               e.stopPropagation();
               handleMove('available');

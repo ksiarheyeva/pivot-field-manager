@@ -1,5 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 
@@ -30,12 +39,23 @@ const PivotManagerInner = () => {
     setActiveField(null);
   };
 
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+  );
+
   return (
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       modifiers={[restrictToVerticalAxis]}
       autoScroll={false}
+      sensors={sensors}
     >
       <div className="flex flex-col h-full gap-4 p-2 overflow-hidden">
         <div className="grid grid-rows-5 gap-4 flex-1 overflow-hidden">
@@ -44,7 +64,7 @@ const PivotManagerInner = () => {
           ))}
         </div>
       </div>
-      <DragOverlay dropAnimation={null}>
+      <DragOverlay dropAnimation={null} className="cursor-grab">
         {activeField ? <FieldItem field={activeField} isOverlay={true} /> : null}
       </DragOverlay>
       {/* <ConfigViewerPopover /> */}
