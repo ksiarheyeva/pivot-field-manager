@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 
 import ConfigProvider, { FieldConfig, usePivotConfig, ZoneType } from './config/ConfigContext';
@@ -20,7 +21,7 @@ const PivotManagerInner = () => {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
       <div className="grid grid-cols-1 gap-4">
         {ZONES.map((zone) => (
           <FieldZone key={zone} type={zone} />
