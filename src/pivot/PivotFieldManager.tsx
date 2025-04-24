@@ -13,6 +13,7 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 
 import ConfigProvider, { FieldConfig, usePivotConfig, ZoneType } from './config/ConfigContext';
+import ConfigViewerPopover from './ConfigViewerPopover';
 import FieldItem from './items/FieldItem';
 import ValidatePivotConfig from './ValidatePivotConfig';
 import FieldZone from './zones/FieldZone';
@@ -24,8 +25,6 @@ const PivotManagerInner = () => {
   const [activeField, setActiveField] = useState<FieldConfig | null>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
-    console.log(event, 'event');
-
     const draggedId = event.active.id as string;
     const allFields = fields;
     setActiveField(allFields.find((f) => f.id === draggedId) ?? null);
@@ -57,7 +56,7 @@ const PivotManagerInner = () => {
       autoScroll={false}
       sensors={sensors}
     >
-      <div className="flex flex-col h-full gap-4 p-2 overflow-hidden">
+      <div className="flex flex-col h-full gap-4 overflow-hidden">
         <div className="grid grid-rows-5 gap-4 flex-1 overflow-hidden">
           {ZONES.map((zone) => (
             <FieldZone key={zone} type={zone} />
@@ -67,7 +66,7 @@ const PivotManagerInner = () => {
       <DragOverlay dropAnimation={null} className="cursor-grab">
         {activeField ? <FieldItem field={activeField} isOverlay={true} /> : null}
       </DragOverlay>
-      {/* <ConfigViewerPopover /> */}
+      <ConfigViewerPopover />
     </DndContext>
   );
 };
