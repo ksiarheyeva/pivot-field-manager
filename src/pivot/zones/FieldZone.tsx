@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useDroppable } from '@dnd-kit/core';
+import { useDndMonitor, useDroppable } from '@dnd-kit/core';
 import { AArrowDown, AArrowUp, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
 
@@ -9,13 +9,27 @@ import FieldItem from '../items/FieldItem';
 
 function FieldZone({ type }: { type: ZoneType }) {
   const { getFieldsForZone, updateZoneFields } = usePivotConfig();
-  const fields = getFieldsForZone(type);
   const { setNodeRef, isOver } = useDroppable({ id: type });
+  const fields = getFieldsForZone(type);
 
   const originalRef = useRef<FieldConfig[] | null>(null);
 
   const [sortState, setSortState] = useState('default');
   const [search, setSearch] = useState('');
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useDndMonitor({
+    onDragStart(event) {
+      setActiveId(event.active.id as string);
+    },
+    onDragEnd() {
+      setActiveId(null);
+    },
+    onDragCancel() {
+      setActiveId(null);
+    },
+  });
 
   function toggleSort() {
     const next = sortState === 'default' ? 'asc' : sortState === 'asc' ? 'desc' : 'default';
@@ -47,19 +61,17 @@ function FieldZone({ type }: { type: ZoneType }) {
   );
 
   return (
-    <div className="grid grid-flow-col">
-      <div
-        ref={setNodeRef}
-        className={`border rounded p-2 min-h-[50px] transition-colors ${
-          isOver ? 'bg-gray-100' : 'bg-white'
-        }`}
-      >
-        <div className="flex justify-between mb-3">
-          <h3 className="text-sm font-semibold capitalize mb-2">{type}</h3>
+    <div
+      ref={setNodeRef}
+      className={`min-h-[100px] flex flex-col h-full border overflow-hidden rounded transition-colors ${isOver ? 'bg-gray-100' : 'bg-white'}`}
+    >
+      <div className="sticky top-0 z-10 bg-white p-2 border-b">
+        <div className="flex justify-between items-center">
+          <h3 className="text-sm font-semibold capitalize select-none">{type}</h3>
 
           {fields.length !== 0 && fields.length !== 1 ? (
             <div className="flex gap-2 ml-1">
-              <div className="relative ">
+              <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Field search..."
@@ -93,18 +105,22 @@ function FieldZone({ type }: { type: ZoneType }) {
             ''
           )}
         </div>
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          {fields.length === 0 && (
-            <div className="text-sm text-muted-foreground italic">No fields</div>
-          )}
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 ">
+        {fields.length === 0 && (
+          <div className="text-sm text-muted-foreground italic select-none">No fields</div>
+        )}
 
-          {search !== '' && filteredFields.length === 0 ? (
-            <div className="text-sm text-muted-foreground italic">Not found</div>
-          ) : (
-            filteredFields.map((field) => <FieldItem key={field.id} field={field} zone={type} />)
-          )}
-        </div>
+        {search !== '' && filteredFields.length === 0 ? (
+          <div className="text-sm text-muted-foreground italic select-none">Not found</div>
+        ) : (
+          <>
+            {filteredFields.map((field) =>
+              field.id === activeId ? null : <FieldItem key={field.id} field={field} zone={type} />,
+            )}
+          </>
+        )}
       </div>
     </div>
   );

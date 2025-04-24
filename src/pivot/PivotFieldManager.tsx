@@ -1,34 +1,53 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 
 import ConfigProvider, { FieldConfig, usePivotConfig, ZoneType } from './config/ConfigContext';
-import ConfigViewerPopover from './ConfigViewerPopover';
+import FieldItem from './items/FieldItem';
 import ValidatePivotConfig from './ValidatePivotConfig';
 import FieldZone from './zones/FieldZone';
 
 const ZONES: ZoneType[] = ['available', 'rows', 'columns', 'filters', 'values'];
 
 const PivotManagerInner = () => {
-  const { moveFieldToZone } = usePivotConfig();
+  const { fields, moveFieldToZone } = usePivotConfig();
+  const [activeField, setActiveField] = useState<FieldConfig | null>(null);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    console.log(event, 'event');
+
+    const draggedId = event.active.id as string;
+    const allFields = fields;
+    setActiveField(allFields.find((f) => f.id === draggedId) ?? null);
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && ZONES.includes(over.id as ZoneType)) {
       moveFieldToZone(active.id as string, over.id as ZoneType);
     }
+    setActiveField(null);
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
-      <div className="grid grid-cols-1 gap-4">
-        {ZONES.map((zone) => (
-          <FieldZone key={zone} type={zone} />
-        ))}
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      modifiers={[restrictToVerticalAxis]}
+      autoScroll={false}
+    >
+      <div className="flex flex-col h-full gap-4 p-2 overflow-hidden">
+        <div className="grid grid-rows-5 gap-4 flex-1 overflow-hidden">
+          {ZONES.map((zone) => (
+            <FieldZone key={zone} type={zone} />
+          ))}
+        </div>
       </div>
-
-      <ConfigViewerPopover />
+      <DragOverlay dropAnimation={null}>
+        {activeField ? <FieldItem field={activeField} isOverlay={true} /> : null}
+      </DragOverlay>
+      {/* <ConfigViewerPopover /> */}
     </DndContext>
   );
 };

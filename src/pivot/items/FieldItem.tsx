@@ -11,10 +11,19 @@ import { GripVertical } from 'lucide-react';
 
 import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 
-function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
+function FieldItem({
+  field,
+  zone,
+  isOverlay = false,
+}: {
+  field: FieldConfig;
+  zone?: ZoneType;
+  isOverlay?: boolean;
+}) {
   const { moveFieldToZone, updateFieldConfig, aggregations } = usePivotConfig();
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: field.id,
+    // disabled: isOverlay,
   });
 
   const style = transform
@@ -22,6 +31,28 @@ function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
         transform: `translate(${transform.x}px, ${transform.y}px)`,
       }
     : undefined;
+
+  if (isOverlay) {
+    return (
+      <div
+        ref={setNodeRef}
+        style={{
+          ...style,
+          pointerEvents: 'none', // Отключаем pointer events для overlay
+          zIndex: 9999,
+        }}
+        className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm shadow-lg overflow-hidden select-none"
+      >
+        <div {...listeners} className="flex flex-1 items-center gap-2">
+          <span className="cursor-grab">
+            <GripVertical className="w-4 h-4 text-muted-foreground" />
+          </span>
+
+          <span>{field.id}</span>
+        </div>
+      </div>
+    );
+  }
 
   const handleMove = (targetZone: ZoneType) => {
     moveFieldToZone(field.id, targetZone);
@@ -42,60 +73,63 @@ function FieldItem({ field, zone }: { field: FieldConfig; zone: ZoneType }) {
       ref={setNodeRef}
       {...attributes}
       style={style}
-      className="flex items-center gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab"
-      {...listeners}
+      className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab select-none"
     >
-      <span className="cursor-grab">
-        <GripVertical className="w-4 h-4 text-muted-foreground" />
-      </span>
+      <div {...listeners} className="flex flex-1 items-center gap-2">
+        <span className="cursor-grab">
+          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        </span>
 
-      <span>{field.id}</span>
+        <span>{field.id}</span>
+      </div>
 
-      {zone === 'values' && (
-        <Select
-          onValueChange={handleAggregationChange}
-          defaultValue={
-            field.aggregation && aggregations.includes(field.aggregation) ? field.aggregation : ''
-          }
-        >
-          <SelectTrigger className="h-6">
-            <SelectValue placeholder="agg" />
-          </SelectTrigger>
-          <SelectContent>
-            {aggregations.map((agg) => (
-              <SelectItem value={`${agg}`} key={agg}>
-                {agg}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      <div className="flex gap-1">
+        {zone === 'values' && (
+          <Select
+            onValueChange={handleAggregationChange}
+            defaultValue={
+              field.aggregation && aggregations.includes(field.aggregation) ? field.aggregation : ''
+            }
+          >
+            <SelectTrigger className="h-6">
+              <SelectValue placeholder="agg" />
+            </SelectTrigger>
+            <SelectContent>
+              {aggregations.map((agg) => (
+                <SelectItem value={`${agg}`} key={agg}>
+                  {agg}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
-      {(zone === 'rows' || zone === 'columns') && (
-        <Select onValueChange={handleSortChange} defaultValue={field.sort}>
-          <SelectTrigger className="h-6">
-            <SelectValue placeholder="sort" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="asc">asc</SelectItem>
-            <SelectItem value="desc">desc</SelectItem>
-          </SelectContent>
-        </Select>
-      )}
+        {(zone === 'rows' || zone === 'columns') && (
+          <Select onValueChange={handleSortChange} defaultValue={field.sort}>
+            <SelectTrigger className="h-6">
+              <SelectValue placeholder="sort" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="asc">asc</SelectItem>
+              <SelectItem value="desc">desc</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
 
-      {zone !== 'available' && (
-        <Button
-          size="sm"
-          variant="ghost"
-          className="ml-auto text-xs"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleMove('available');
-          }}
-        >
-          ✕
-        </Button>
-      )}
+        {zone !== 'available' && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ml-auto text-xs cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleMove('available');
+            }}
+          >
+            ✕
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

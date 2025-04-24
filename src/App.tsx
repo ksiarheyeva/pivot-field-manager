@@ -15,8 +15,8 @@ function App() {
 
   return (
     <>
-      <div className="p-4">
-        <h1 className="text-xl font-bold mb-4">Pivot Manager Demo</h1>
+      <div className="flex flex-col max-w-md m-auto h-screen">
+        <h1 className="text-xl font-bold m-4">Pivot Manager Demo</h1>
         <PivotFieldManager
           fields={[
             'sales',
