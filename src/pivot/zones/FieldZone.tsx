@@ -8,11 +8,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useDndMonitor, useDroppable } from '@dnd-kit/core';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AArrowDown, AArrowUp, Plus, Save, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 import FieldItem from '../items/FieldItem';
@@ -70,6 +74,52 @@ function FieldZone({ type }: { type: ZoneType }) {
     field.id.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const formSchema = z.object({
+    fieldName: z
+      .string()
+      .min(2, {
+        message: 'FiedName must be at least 2 characters.',
+      })
+      .max(50),
+    expression: z.string().min(2, {
+      message: 'Expression must be at least 2 characters.',
+    }),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fieldName: '',
+      expression: '',
+    },
+    mode: 'onChange',
+  });
+
+  const { reset, handleSubmit, formState, control } = form;
+  const { errors, isDirty, isValid } = formState;
+
+  const [open, setOpen] = useState(false);
+
+  // Keep track of dialog opening/closing
+  const isButtonDisabled = !isDirty || !isValid;
+
+  function handleDialogOpenChange(isOpen: boolean) {
+    setOpen(isOpen);
+
+    // If the dialog is closed (isOpen === false)
+    if (!isOpen) {
+      reset();
+    }
+  }
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
+    reset();
+    setOpen(false);
+  }
+
   return (
     <div
       ref={setNodeRef}
@@ -79,14 +129,16 @@ function FieldZone({ type }: { type: ZoneType }) {
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-semibold capitalize select-none">{type}</h3>
 
+          {/* ----- create dialog form*/}
           {type === 'available' && (
-            <Dialog>
+            <Dialog open={open} onOpenChange={handleDialogOpenChange}>
               <DialogTrigger asChild>
                 <Button variant="outline">
                   <Plus />
                   New field
                 </Button>
               </DialogTrigger>
+
               <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>Add new field</DialogTitle>
@@ -94,18 +146,46 @@ function FieldZone({ type }: { type: ZoneType }) {
                     Create a new field. Click save when you are finished.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col gap-2">
-                  <div className="flex">
-                    <Input placeholder="New field" />
-                  </div>
-                  <Textarea placeholder="Expression" />
-                </div>
-                <DialogFooter>
-                  <Button variant="outline">
-                    <Save />
-                    Save
-                  </Button>
-                </DialogFooter>
+                <Form {...form}>
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                    <FormField
+                      control={control}
+                      name="fieldName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="New field" {...field} />
+                          </FormControl>
+                          {errors.fieldName && (
+                            <FormMessage>{errors.fieldName.message}</FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={control}
+                      name="expression"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea placeholder="Expression" {...field} />
+                          </FormControl>
+                          {errors.expression && (
+                            <FormMessage>{errors.expression.message}</FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+
+                    <DialogFooter>
+                      <Button variant="outline" disabled={isButtonDisabled}>
+                        <Save />
+                        Save
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
               </DialogContent>
             </Dialog>
           )}
