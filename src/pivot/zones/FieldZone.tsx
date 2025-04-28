@@ -1,7 +1,17 @@
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useDndMonitor, useDroppable } from '@dnd-kit/core';
-import { AArrowDown, AArrowUp, Search } from 'lucide-react';
+import { AArrowDown, AArrowUp, Plus, Save, Search } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
@@ -68,6 +78,37 @@ function FieldZone({ type }: { type: ZoneType }) {
       <div className="sticky top-0 z-10 bg-white p-2 border-b">
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-semibold capitalize select-none">{type}</h3>
+
+          {type === 'available' && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus />
+                  New field
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Add new field</DialogTitle>
+                  <DialogDescription>
+                    Create a new field. Click save when you are finished.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
+                  <div className="flex">
+                    <Input placeholder="New field" />
+                  </div>
+                  <Textarea placeholder="Expression" />
+                </div>
+                <DialogFooter>
+                  <Button variant="outline">
+                    <Save />
+                    Save
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
 
           {fields.length !== 0 && fields.length !== 1 ? (
             <div className="flex gap-2 ml-1">
