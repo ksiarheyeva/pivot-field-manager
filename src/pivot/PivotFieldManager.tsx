@@ -9,7 +9,6 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 
 import ConfigProvider, { FieldConfig, usePivotConfig, ZoneType } from './config/ConfigContext';
@@ -56,15 +55,19 @@ const PivotManagerInner = () => {
     <DndContext
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis]}
       autoScroll={false}
       sensors={sensors}
     >
       <div className="flex flex-col h-full gap-4 overflow-hidden">
-        <div className="grid grid-rows-5 gap-4 flex-1 overflow-hidden">
-          {ZONES.map((zone) => (
-            <FieldZone key={zone} type={zone} />
-          ))}
+        <div className="grid grid-cols-2 gap-4 h-full overflow-hidden">
+          <div className="h-full overflow-hidden">
+            <FieldZone type="available" />
+          </div>
+          <div className="grid grid-rows-4 gap-4 h-full overflow-hidden">
+            {(['rows', 'columns', 'filters', 'values'] as const).map((zone) => (
+              <FieldZone key={zone} type={zone} />
+            ))}
+          </div>
         </div>
       </div>
       <DragOverlay dropAnimation={null} className="cursor-grab">
