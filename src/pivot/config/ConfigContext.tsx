@@ -7,6 +7,7 @@ export type FieldConfig = {
   zone: ZoneType;
   sort?: 'asc' | 'desc';
   aggregation?: string;
+  expression?: string;
 };
 
 export type ConfigContextType = {
@@ -16,6 +17,7 @@ export type ConfigContextType = {
   updateFieldConfig: (fieldId: string, updates: Partial<FieldConfig>) => void;
   aggregations: string[];
   updateZoneFields: (zone: ZoneType, updatedFields: FieldConfig[]) => void;
+  addNewField: (fieldConfig: Partial<FieldConfig>, zone: ZoneType) => void;
 };
 
 export const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
@@ -41,6 +43,13 @@ function ConfigProvider({
     // Ensures that all passed fields are in the configuration
     return availableFields.map((id) => configById.get(id) || { id, zone: 'available' });
   });
+
+  const addNewField = (fieldConfig: Partial<FieldConfig>, zone: ZoneType = 'available') => {
+    setFields((prev) => {
+      const newField = { ...fieldConfig, zone };
+      return [newField, ...prev];
+    });
+  };
 
   useEffect(() => {
     if (onChange) onChange(fields);
@@ -76,11 +85,6 @@ function ConfigProvider({
     return fields.filter((f) => f.zone === zone);
   };
 
-  type FieldConfig = {
-    id: string;
-    zone: ZoneType;
-  };
-
   const updateZoneFields = (zone: ZoneType, updatedFields: FieldConfig[]) => {
     setFields((prev) => {
       const others = prev.filter((f) => f.zone !== zone);
@@ -97,6 +101,7 @@ function ConfigProvider({
         getFieldsForZone,
         aggregations,
         updateZoneFields,
+        addNewField,
       }}
     >
       {children}

@@ -22,7 +22,7 @@ import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 import FieldItem from '../items/FieldItem';
 
 function FieldZone({ type }: { type: ZoneType }) {
-  const { getFieldsForZone, updateZoneFields } = usePivotConfig();
+  const { getFieldsForZone, updateZoneFields, addNewField } = usePivotConfig();
   const { setNodeRef, isOver } = useDroppable({ id: type });
   const fields = getFieldsForZone(type);
 
@@ -32,6 +32,8 @@ function FieldZone({ type }: { type: ZoneType }) {
   const [search, setSearch] = useState('');
 
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  const [open, setOpen] = useState(false);
 
   useDndMonitor({
     onDragStart(event) {
@@ -75,12 +77,15 @@ function FieldZone({ type }: { type: ZoneType }) {
   );
 
   const formSchema = z.object({
-    fieldName: z
+    id: z
       .string()
       .min(2, {
         message: 'FiedName must be at least 2 characters.',
       })
-      .max(50),
+      .max(50)
+      .refine((val) => !fields.find((field) => field.id === val), {
+        message: 'Field already exists',
+      }),
     expression: z.string().min(2, {
       message: 'Expression must be at least 2 characters.',
     }),
@@ -89,7 +94,7 @@ function FieldZone({ type }: { type: ZoneType }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fieldName: '',
+      id: 'New Field 1',
       expression: '',
     },
     mode: 'onChange',
@@ -97,8 +102,6 @@ function FieldZone({ type }: { type: ZoneType }) {
 
   const { reset, handleSubmit, formState, control } = form;
   const { errors, isDirty, isValid } = formState;
-
-  const [open, setOpen] = useState(false);
 
   // Keep track of dialog opening/closing
   const isButtonDisabled = !isDirty || !isValid;
@@ -112,10 +115,8 @@ function FieldZone({ type }: { type: ZoneType }) {
     }
   }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  function onSubmit(fieldConfig: z.infer<typeof formSchema>) {
+    addNewField(fieldConfig, type);
     reset();
     setOpen(false);
   }
@@ -150,15 +151,13 @@ function FieldZone({ type }: { type: ZoneType }) {
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                     <FormField
                       control={control}
-                      name="fieldName"
+                      name="id"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
                             <Input placeholder="New field" {...field} />
                           </FormControl>
-                          {errors.fieldName && (
-                            <FormMessage>{errors.fieldName.message}</FormMessage>
-                          )}
+                          {errors.id && <FormMessage>{errors.id.message}</FormMessage>}
                         </FormItem>
                       )}
                     />
@@ -190,7 +189,7 @@ function FieldZone({ type }: { type: ZoneType }) {
             </Dialog>
           )}
 
-          {fields.length !== 0 && fields.length !== 1 ? (
+          {fields.length > 1 ? (
             <div className="flex gap-2 ml-1">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
