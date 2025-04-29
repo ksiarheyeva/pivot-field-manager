@@ -41,7 +41,7 @@ function FieldItem({
           pointerEvents: 'none', // Отключаем pointer events для overlay
           zIndex: 9999,
         }}
-        className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm shadow-lg overflow-hidden select-none min-h-12"
+        className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm shadow-lg overflow-hidden select-none"
       >
         <div {...listeners} className="flex flex-1 items-center gap-2">
           <span className="cursor-grab">
@@ -73,7 +73,7 @@ function FieldItem({
       ref={setNodeRef}
       {...attributes}
       style={style}
-      className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab select-none min-h-12"
+      className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm cursor-grab select-none"
     >
       <div {...listeners} className="flex flex-1 items-center gap-2">
         <span className="cursor-grab">
@@ -91,7 +91,7 @@ function FieldItem({
               field.aggregation && aggregations.includes(field.aggregation) ? field.aggregation : ''
             }
           >
-            <SelectTrigger className="h-6">
+            <SelectTrigger size="sm">
               <SelectValue placeholder="agg" />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +106,7 @@ function FieldItem({
 
         {(zone === 'rows' || zone === 'columns') && (
           <Select onValueChange={handleSortChange} defaultValue={field.sort}>
-            <SelectTrigger className="h-6">
+            <SelectTrigger size="sm">
               <SelectValue placeholder="sort" />
             </SelectTrigger>
             <SelectContent>
