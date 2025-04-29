@@ -46,7 +46,8 @@ function ConfigProvider({
 
   const addNewField = (fieldConfig: Partial<FieldConfig>, zone: ZoneType = 'available') => {
     setFields((prev) => {
-      const newField = { ...fieldConfig, zone };
+      // TODO: Ref fieldConfig.id!
+      const newField: FieldConfig = { id: fieldConfig.id!, zone, ...fieldConfig };
       return [newField, ...prev];
     });
   };
