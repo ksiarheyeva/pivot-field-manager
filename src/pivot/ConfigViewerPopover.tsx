@@ -23,7 +23,7 @@ function ConfigViewerPopover() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className="my-4">
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="select-none">
           <EyeIcon className="h-4 w-4 mr-1" />
           Configuration
         </Button>

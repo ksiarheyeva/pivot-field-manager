@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { useEffect, useState } from 'react';
 
 import ConfigProvider, { FieldConfig, usePivotConfig, ZoneType } from './config/ConfigContext';
@@ -70,7 +71,7 @@ const PivotManagerInner = () => {
           </div>
         </div>
       </div>
-      <DragOverlay dropAnimation={null} className="cursor-grab">
+      <DragOverlay dropAnimation={null} className="cursor-grab" modifiers={[restrictToWindowEdges]}>
         {activeField ? <FieldItem field={activeField} isOverlay={true} /> : null}
       </DragOverlay>
       <ConfigViewerPopover />
