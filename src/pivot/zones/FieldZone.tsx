@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDndMonitor, useDroppable } from '@dnd-kit/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AArrowDown, AArrowUp, Plus, Save, Search } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -24,51 +24,57 @@ import FieldItem from '../items/FieldItem';
 function FieldZone({ type }: { type: ZoneType }) {
   const { getFieldsForZone, updateZoneFields, addNewField } = usePivotConfig();
   const { setNodeRef, isOver } = useDroppable({ id: type });
+
   const fields = getFieldsForZone(type);
+  const originalRef = useRef<FieldConfig[]>([]);
 
-  const originalRef = useRef<FieldConfig[] | null>(null);
-
-  const [sortState, setSortState] = useState('default');
+  const [sortState, setSortState] = useState<'default' | 'asc' | 'desc'>('default');
   const [search, setSearch] = useState('');
-
   const [activeId, setActiveId] = useState<string | null>(null);
-
   const [open, setOpen] = useState(false);
 
-  useDndMonitor({
-    onDragStart(event) {
-      setActiveId(event.active.id as string);
-    },
-    onDragEnd() {
-      setActiveId(null);
-    },
-    onDragCancel() {
-      setActiveId(null);
-    },
-  });
+  // Update originalRef: add only new fields
+  useEffect(() => {
+    if (originalRef.current.length === 0) {
+      originalRef.current = [...fields];
+      return;
+    }
+
+    const currentIds = new Set(originalRef.current.map((f) => f.id));
+    const newFields = fields.filter((f) => !currentIds.has(f.id));
+
+    if (newFields.length > 0) {
+      originalRef.current = [...originalRef.current, ...newFields];
+    }
+  }, [fields]);
+
+  function sortFields(
+    fields: FieldConfig[],
+    sortState: 'default' | 'asc' | 'desc',
+    original?: FieldConfig[],
+  ): FieldConfig[] {
+    if (sortState === 'asc') {
+      return [...fields].sort((a, b) => a.id.localeCompare(b.id));
+    } else if (sortState === 'desc') {
+      return [...fields].sort((a, b) => b.id.localeCompare(a.id));
+    } else {
+      return original ?? fields;
+    }
+  }
+
+  // Auto-apply sorting when moving/adding
+  useEffect(() => {
+    if (sortState !== 'default') {
+      const sorted = sortFields(fields, sortState, originalRef.current);
+      updateZoneFields(type, sorted);
+    }
+  }, [fields.length]);
 
   function toggleSort() {
     const next = sortState === 'default' ? 'asc' : sortState === 'asc' ? 'desc' : 'default';
 
     setSortState(next);
-
-    let sorted;
-    const zoneFields = fields.filter((f) => f.zone === type);
-    if (next === 'asc') {
-      if (!originalRef.current) {
-        originalRef.current = zoneFields;
-      }
-      sorted = [...fields].sort((a, b) => a.id.localeCompare(b.id));
-    } else if (next === 'desc') {
-      if (!originalRef.current) {
-        originalRef.current = zoneFields;
-      }
-      sorted = [...fields].sort((a, b) => b.id.localeCompare(a.id));
-    } else {
-      sorted = originalRef.current ?? zoneFields;
-      originalRef.current = null;
-    }
-
+    const sorted = sortFields(fields, next, originalRef.current);
     updateZoneFields(type, sorted);
   }
 
@@ -79,9 +85,7 @@ function FieldZone({ type }: { type: ZoneType }) {
   const formSchema = z.object({
     id: z
       .string()
-      .min(2, {
-        message: 'FiedName must be at least 2 characters.',
-      })
+      .min(2, { message: 'Field name must be at least 2 characters.' })
       .max(50)
       .refine((val) => !fields.find((field) => field.id === val), {
         message: 'Field already exists',
@@ -102,17 +106,11 @@ function FieldZone({ type }: { type: ZoneType }) {
 
   const { reset, handleSubmit, formState, control } = form;
   const { errors, isDirty, isValid } = formState;
-
-  // Keep track of dialog opening/closing
   const isButtonDisabled = !isDirty || !isValid;
 
   function handleDialogOpenChange(isOpen: boolean) {
     setOpen(isOpen);
-
-    // If the dialog is closed (isOpen === false)
-    if (!isOpen) {
-      reset();
-    }
+    if (!isOpen) reset();
   }
 
   function onSubmit(fieldConfig: z.infer<typeof formSchema>) {
@@ -120,6 +118,18 @@ function FieldZone({ type }: { type: ZoneType }) {
     reset();
     setOpen(false);
   }
+
+  useDndMonitor({
+    onDragStart(event) {
+      setActiveId(event.active.id as string);
+    },
+    onDragEnd() {
+      setActiveId(null);
+    },
+    onDragCancel() {
+      setActiveId(null);
+    },
+  });
 
   return (
     <div
