@@ -26,6 +26,7 @@ function FieldZone({ type }: { type: ZoneType }) {
   const { setNodeRef, isOver } = useDroppable({ id: type });
 
   const fields = getFieldsForZone(type);
+
   const originalRef = useRef<FieldConfig[]>([]);
 
   const [sortState, setSortState] = useState<'default' | 'asc' | 'desc'>('default');
@@ -35,16 +36,18 @@ function FieldZone({ type }: { type: ZoneType }) {
 
   // Update originalRef: add only new fields
   useEffect(() => {
-    if (originalRef.current.length === 0) {
-      originalRef.current = [...fields];
-      return;
-    }
+    const currentIds = new Set(fields.map((f) => f.id));
+    const originalIds = new Set(originalRef.current.map((f) => f.id));
 
-    const currentIds = new Set(originalRef.current.map((f) => f.id));
-    const newFields = fields.filter((f) => !currentIds.has(f.id));
+    const addedFields = fields.filter((f) => !originalIds.has(f.id));
+    const removedFields = originalRef.current.filter((f) => !currentIds.has(f.id));
 
-    if (newFields.length > 0) {
-      originalRef.current = [...originalRef.current, ...newFields];
+    if (addedFields.length > 0 || removedFields.length > 0) {
+      // Add to the end of the originalRef
+      originalRef.current = [
+        ...originalRef.current.filter((f) => currentIds.has(f.id)), // clean up deleted
+        ...addedFields, // add new fileds to the end
+      ];
     }
   }, [fields]);
 
@@ -58,7 +61,9 @@ function FieldZone({ type }: { type: ZoneType }) {
     } else if (sortState === 'desc') {
       return [...fields].sort((a, b) => b.id.localeCompare(a.id));
     } else {
-      return original ?? fields;
+      const orderMap = new Map(original?.map((f, idx) => [f.id, idx]));
+
+      return [...fields].sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
     }
   }
 
@@ -239,7 +244,9 @@ function FieldZone({ type }: { type: ZoneType }) {
 
       <div className="flex-1 overflow-y-auto p-2 space-y-2 ">
         {fields.length === 0 && (
-          <div className="text-sm text-muted-foreground italic select-none">No fields</div>
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground italic select-none">
+            No fields
+          </div>
         )}
 
         {search !== '' && filteredFields.length === 0 ? (

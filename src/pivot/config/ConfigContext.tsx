@@ -48,7 +48,7 @@ function ConfigProvider({
     setFields((prev) => {
       // TODO: Ref fieldConfig.id!
       const newField: FieldConfig = { id: fieldConfig.id!, zone, ...fieldConfig };
-      return [newField, ...prev];
+      return [...prev, newField];
     });
   };
 
@@ -60,9 +60,11 @@ function ConfigProvider({
     setFields((prev) => {
       const updatedFields = prev.filter((f) => f.id !== fieldId);
       const moved = prev.find((f) => f.id === fieldId);
+
       if (!moved) return prev;
 
-      const updated = { ...moved, zone };
+      const updated = { ...moved, zone: zone };
+
       if (onFieldUpdate) onFieldUpdate(updated);
 
       return [...updatedFields, updated];

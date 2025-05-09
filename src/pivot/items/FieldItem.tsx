@@ -23,6 +23,10 @@ function FieldItem({
   const { moveFieldToZone, updateFieldConfig, aggregations } = usePivotConfig();
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: field.id,
+    data: {
+      field,
+      fromZone: zone, // где type — 'rows', 'columns' и т.д.
+    },
     // disabled: isOverlay,
   });
 

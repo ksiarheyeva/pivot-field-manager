@@ -32,6 +32,8 @@ const PivotManagerInner = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    console.log('active:', active, 'over:', over);
+
     if (over && ZONES.includes(over.id as ZoneType)) {
       moveFieldToZone(active.id as string, over.id as ZoneType);
     }
