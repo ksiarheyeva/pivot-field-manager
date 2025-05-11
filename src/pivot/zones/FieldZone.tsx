@@ -26,6 +26,7 @@ function FieldZone({ type }: { type: ZoneType }) {
   const { setNodeRef, isOver } = useDroppable({ id: type });
 
   const fields = getFieldsForZone(type);
+  console.log(fields, 'fields');
 
   const originalRef = useRef<FieldConfig[]>([]);
 
@@ -103,15 +104,23 @@ function FieldZone({ type }: { type: ZoneType }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: 'New Field 1',
+      id: '',
       expression: '',
     },
     mode: 'onChange',
   });
 
   const { reset, handleSubmit, formState, control } = form;
+
   const { errors, isDirty, isValid } = formState;
   const isButtonDisabled = !isDirty || !isValid;
+
+  // useEffect(() => {
+  //   if (open) {
+  //     reset({ id: 'New Field 1', expression: '' }); // setting default values
+  //     form.trigger('id'); // validation of Id field on opening (.refine)
+  //   }
+  // }, [open, reset, form]);
 
   function handleDialogOpenChange(isOpen: boolean) {
     setOpen(isOpen);
@@ -143,7 +152,7 @@ function FieldZone({ type }: { type: ZoneType }) {
     >
       <div className="sticky top-0 z-10 bg-white p-2 border-b">
         <div className="flex justify-between items-center">
-          <h3 className="text-sm font-semibold capitalize select-none">{type}</h3>
+          <h3 className="text-sm font-semibold capitalize select-none px-1">{type}</h3>
 
           {/* ----- create dialog form*/}
           {type === 'available' && (
@@ -170,7 +179,7 @@ function FieldZone({ type }: { type: ZoneType }) {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input placeholder="New field" {...field} />
+                            <Input placeholder="New field" {...field} autoFocus={true} />
                           </FormControl>
                           {errors.id && <FormMessage>{errors.id.message}</FormMessage>}
                         </FormItem>

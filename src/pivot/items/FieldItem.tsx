@@ -25,7 +25,7 @@ function FieldItem({
     id: field.id,
     data: {
       field,
-      fromZone: zone, // где type — 'rows', 'columns' и т.д.
+      fromZone: zone, // type — 'rows', 'columns' etc.
     },
     // disabled: isOverlay,
   });
@@ -42,7 +42,7 @@ function FieldItem({
         ref={setNodeRef}
         style={{
           ...style,
-          pointerEvents: 'none', // Отключаем pointer events для overlay
+          pointerEvents: 'none', // Disable pointer events for overlay
           zIndex: 9999,
         }}
         className="flex items-center justify-between gap-2 px-2 py-1 border rounded bg-muted text-sm shadow-lg overflow-hidden select-none"
