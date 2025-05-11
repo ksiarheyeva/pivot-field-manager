@@ -10,10 +10,11 @@ import {
 } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useDndMonitor, useDroppable } from '@dnd-kit/core';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Editor, { OnMount } from '@monaco-editor/react';
 import { AArrowDown, AArrowUp, Plus, Save, Search } from 'lucide-react';
+import * as monaco from 'monaco-editor';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -145,6 +146,49 @@ function FieldZone({ type }: { type: ZoneType }) {
     },
   });
 
+  const handleEditorDidMount: OnMount = (_, monacoInstance) => {
+    monacoInstance.languages.registerCompletionItemProvider('python', {
+      provideCompletionItems: (model, position) => {
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+
+        const suggestions: monaco.languages.CompletionItem[] = [
+          {
+            label: 'print',
+            kind: monacoInstance.languages.CompletionItemKind.Function,
+            insertText: 'print(${1:message})',
+            insertTextRules: monacoInstance.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            documentation: 'Prints a message to the console',
+            range,
+          },
+          {
+            label: 'def',
+            kind: monacoInstance.languages.CompletionItemKind.Keyword,
+            insertText: 'def ${1:function_name}(${2:params}):\n\t$0',
+            insertTextRules: monacoInstance.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            documentation: 'Defines a new function',
+            range,
+          },
+          {
+            label: 'if',
+            kind: monacoInstance.languages.CompletionItemKind.Snippet,
+            insertText: 'if ${1:condition}:\n\t$0',
+            insertTextRules: monacoInstance.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            documentation: 'If statement',
+            range,
+          },
+        ];
+
+        return { suggestions };
+      },
+    });
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -192,7 +236,17 @@ function FieldZone({ type }: { type: ZoneType }) {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Textarea placeholder="Expression" {...field} />
+                            <div className="h-[25vh]">
+                              <Editor
+                                {...field}
+                                defaultLanguage="python"
+                                options={{
+                                  minimap: { enabled: false },
+                                  fontSize: 14,
+                                }}
+                                onMount={handleEditorDidMount}
+                              />
+                            </div>
                           </FormControl>
                           {errors.expression && (
                             <FormMessage>{errors.expression.message}</FormMessage>
