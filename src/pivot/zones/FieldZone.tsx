@@ -208,7 +208,7 @@ function FieldZone({ type }: { type: ZoneType }) {
                 </Button>
               </DialogTrigger>
 
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="w-full max-w-[90vw] sm:max-w-[500px] ">
                 <DialogHeader>
                   <DialogTitle>Add new field</DialogTitle>
                   <DialogDescription>
@@ -236,7 +236,7 @@ function FieldZone({ type }: { type: ZoneType }) {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="h-[25vh]">
+                            <div className="h-[25vh] w-full max-w-full overflow-hidden shadow-xs rounded-md border  py-4 focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] duration-200">
                               <Editor
                                 {...field}
                                 defaultLanguage="python"
@@ -245,6 +245,7 @@ function FieldZone({ type }: { type: ZoneType }) {
                                   fontSize: 14,
                                 }}
                                 onMount={handleEditorDidMount}
+                                className="w-full"
                               />
                             </div>
                           </FormControl>
