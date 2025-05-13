@@ -23,13 +23,19 @@ import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 import FieldItem from '../items/FieldItem';
 
 function FieldZone({ type }: { type: ZoneType }) {
-  const { getFieldsForZone, updateZoneFields, addNewField } = usePivotConfig();
+  const {
+    getFieldsForZone,
+    updateZoneFields,
+    addNewField,
+    fields: originFields,
+  } = usePivotConfig();
   const { setNodeRef, isOver } = useDroppable({ id: type });
 
   const fields = getFieldsForZone(type);
   console.log(fields, 'fields');
 
   const originalRef = useRef<FieldConfig[]>([]);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 
   const [sortState, setSortState] = useState<'default' | 'asc' | 'desc'>('default');
   const [search, setSearch] = useState('');
@@ -146,7 +152,8 @@ function FieldZone({ type }: { type: ZoneType }) {
     },
   });
 
-  const handleEditorDidMount: OnMount = (_, monacoInstance) => {
+  const handleEditorDidMount: OnMount = (editor, monacoInstance) => {
+    editorRef.current = editor;
     monacoInstance.languages.registerCompletionItemProvider('python', {
       provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position);
@@ -187,6 +194,43 @@ function FieldZone({ type }: { type: ZoneType }) {
         return { suggestions };
       },
     });
+  };
+
+  const insertTextIntoEditor = (text: string) => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      editor.focus(); // it is required that the position is not null
+
+      const position = editor.getPosition();
+
+      if (position) {
+        const range = new monaco.Range(
+          position.lineNumber,
+          position.column,
+          position.lineNumber,
+          position.column,
+        );
+
+        editor.executeEdits('', [
+          {
+            range,
+            text,
+            forceMoveMarkers: true,
+          },
+        ]);
+
+        // Scroll to new cursor position
+        editor.setPosition({
+          lineNumber: position.lineNumber,
+          column: position.column + text.length,
+        });
+
+        editor.revealPositionInCenterIfOutsideViewport({
+          lineNumber: position.lineNumber,
+          column: position.column + text.length,
+        });
+      }
+    }
   };
 
   return (
@@ -236,17 +280,40 @@ function FieldZone({ type }: { type: ZoneType }) {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <div className="h-[25vh] w-full max-w-full overflow-hidden shadow-xs rounded-md border  py-4 focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] duration-200">
-                              <Editor
-                                {...field}
-                                defaultLanguage="python"
-                                options={{
-                                  minimap: { enabled: false },
-                                  fontSize: 14,
-                                }}
-                                onMount={handleEditorDidMount}
-                                className="w-full"
-                              />
+                            <div className="flex gap-4">
+                              <div className="w-1/2 h-[25vh] max-w-full overflow-hidden shadow-xs rounded-md border  py-4 focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px] duration-200">
+                                <Editor
+                                  {...field}
+                                  defaultLanguage="python"
+                                  options={{
+                                    minimap: { enabled: false },
+                                    fontSize: 14,
+                                  }}
+                                  onMount={handleEditorDidMount}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div className="w-1/2 rounded-md border p-4 h-[25vh] overflow-auto">
+                                {originFields.map((field) => (
+                                  <div
+                                    key={field.id}
+                                    className="flex items-center justify-between px-2 py-1 rounded-md hover:bg-muted cursor-pointer group"
+                                    onClick={() => insertTextIntoEditor(field.id)}
+                                  >
+                                    <span className="text-sm">{field.id}</span>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        insertTextIntoEditor(field.id);
+                                      }}
+                                      className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                      <Plus size={14} />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </FormControl>
                           {errors.expression && (
