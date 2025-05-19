@@ -1,28 +1,15 @@
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useDndMonitor, useDroppable } from '@dnd-kit/core';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AArrowDown, AArrowUp, Plus, Save, Search } from 'lucide-react';
+import { AArrowDown, AArrowUp, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 import FieldItem from '../items/FieldItem';
+import NewFieldDialog from '../NewFieldDialog';
 
 function FieldZone({ type }: { type: ZoneType }) {
-  const { getFieldsForZone, updateZoneFields, addNewField } = usePivotConfig();
+  const { getFieldsForZone, updateZoneFields } = usePivotConfig();
   const { setNodeRef, isOver } = useDroppable({ id: type });
 
   const fields = getFieldsForZone(type);
@@ -33,7 +20,6 @@ function FieldZone({ type }: { type: ZoneType }) {
   const [sortState, setSortState] = useState<'default' | 'asc' | 'desc'>('default');
   const [search, setSearch] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
 
   // Update originalRef: add only new fields
   useEffect(() => {
@@ -88,50 +74,12 @@ function FieldZone({ type }: { type: ZoneType }) {
     field.id.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const formSchema = z.object({
-    id: z
-      .string()
-      .min(2, { message: 'Field name must be at least 2 characters.' })
-      .max(50)
-      .refine((val) => !fields.find((field) => field.id === val), {
-        message: 'Field already exists',
-      }),
-    expression: z.string().min(2, {
-      message: 'Expression must be at least 2 characters.',
-    }),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      id: '',
-      expression: '',
-    },
-    mode: 'onChange',
-  });
-
-  const { reset, handleSubmit, formState, control } = form;
-
-  const { errors, isDirty, isValid } = formState;
-  const isButtonDisabled = !isDirty || !isValid;
-
   // useEffect(() => {
   //   if (open) {
   //     reset({ id: 'New Field 1', expression: '' }); // setting default values
   //     form.trigger('id'); // validation of Id field on opening (.refine)
   //   }
   // }, [open, reset, form]);
-
-  function handleDialogOpenChange(isOpen: boolean) {
-    setOpen(isOpen);
-    if (!isOpen) reset();
-  }
-
-  function onSubmit(fieldConfig: z.infer<typeof formSchema>) {
-    addNewField(fieldConfig, type);
-    reset();
-    setOpen(false);
-  }
 
   useDndMonitor({
     onDragStart(event) {
@@ -154,64 +102,7 @@ function FieldZone({ type }: { type: ZoneType }) {
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-semibold capitalize select-none px-1">{type}</h3>
 
-          {/* ----- create dialog form*/}
-          {type === 'available' && (
-            <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Plus />
-                  New field
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>Add new field</DialogTitle>
-                  <DialogDescription>
-                    Create a new field. Click save when you are finished.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                    <FormField
-                      control={control}
-                      name="id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder="New field" {...field} autoFocus={true} />
-                          </FormControl>
-                          {errors.id && <FormMessage>{errors.id.message}</FormMessage>}
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={control}
-                      name="expression"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Textarea placeholder="Expression" {...field} />
-                          </FormControl>
-                          {errors.expression && (
-                            <FormMessage>{errors.expression.message}</FormMessage>
-                          )}
-                        </FormItem>
-                      )}
-                    />
-
-                    <DialogFooter>
-                      <Button variant="outline" disabled={isButtonDisabled}>
-                        <Save />
-                        Save
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-          )}
+          {type === 'available' && <NewFieldDialog type={type} />}
 
           {fields.length > 1 ? (
             <div className="flex gap-2 ml-1">
