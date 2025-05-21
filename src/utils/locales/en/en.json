@@ -1,0 +1,26 @@
+{
+  "title": "Pivot manager demo",
+  "newField": "New field",
+  "fieldSearch": "Field search...",
+  "noFields": "No fields",
+  "notFound": "Not found",
+  "configuration": "Configuration",
+  "currentConfiguration": "Current configuration",
+  "copy": "Copy",
+  "configuredAndCopied": "Configured and copied!",
+  "failedToCopy": "Failed to copy.",
+  "available": "available",
+  "addNewField": "Add new field",
+  "createANewField": "Create a new field. Click save when you are finished.",
+  "save": "Save",
+  "fieldNameMustBeAtLeast2": "Field name must be at least 2 characters.",
+  "fieldAlreadyExists": "Field already exists.",
+  "expressionTooShort": "Expression must be at least 2 characters.",
+  "zones": {
+    "available": "Available",
+    "rows": "Rows",
+    "columns": "Columns",
+    "filters": "Filters",
+    "values": "Values"
+  }
+}

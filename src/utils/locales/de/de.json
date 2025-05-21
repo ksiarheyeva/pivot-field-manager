@@ -1,0 +1,26 @@
+{
+  "title": "Pivot manager demo",
+  "newField": "Neues feld",
+  "fieldSearch": "Feldsuche...",
+  "noFields": "Keine felder",
+  "notFound": "Nicht gefunden",
+  "configuration": "Konfiguration",
+  "currentConfiguration": "Aktuelle Konfiguration",
+  "copy": "Kopieren",
+  "configuredAndCopied": "Konfiguriert und kopiert!",
+  "failedToCopy": "Das Kopieren ist fehlgeschlagen.",
+  "available": "verfügbar",
+  "addNewField": "Neues feld hinzufügen",
+  "createANewField": "Erstellen sie ein neues feld. Klicken sie auf speichern, wenn sie fertig sind.",
+  "save": "Speichern Sie",
+  "fieldNameMustBeAtLeast2": "Der feldname muss mindestens 2 zeichen lang sein.",
+  "fieldAlreadyExists": "Feld existiert bereits.",
+  "expressionTooShort": "Der ausdruck muss aus mindestens 2 zeichen bestehen.",
+  "zones": {
+    "available": "Verfügbar",
+    "rows": "Zeilen",
+    "columns": "Rubriken",
+    "filters": "Filter",
+    "values": "Werte"
+  }
+}

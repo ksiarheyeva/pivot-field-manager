@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { useDndMonitor, useDroppable } from '@dnd-kit/core';
 import { AArrowDown, AArrowUp, Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { FieldConfig, usePivotConfig, ZoneType } from '../config/ConfigContext';
 import FieldItem from '../items/FieldItem';
@@ -11,6 +12,7 @@ import NewFieldDialog from '../NewFieldDialog';
 function FieldZone({ type }: { type: ZoneType }) {
   const { getFieldsForZone, updateZoneFields } = usePivotConfig();
   const { setNodeRef, isOver } = useDroppable({ id: type });
+  const { t } = useTranslation();
 
   const fields = getFieldsForZone(type);
   console.log(fields, 'fields');
@@ -92,7 +94,6 @@ function FieldZone({ type }: { type: ZoneType }) {
       setActiveId(null);
     },
   });
-
   return (
     <div
       ref={setNodeRef}
@@ -100,7 +101,9 @@ function FieldZone({ type }: { type: ZoneType }) {
     >
       <div className="sticky top-0 z-10 bg-white p-2 border-b">
         <div className="flex justify-between items-center">
-          <h3 className="text-sm font-semibold capitalize select-none px-1">{type}</h3>
+          <h3 className="text-sm font-semibold capitalize select-none px-1">
+            {t(`zones.${type}`)}
+          </h3>
 
           {type === 'available' && <NewFieldDialog type={type} />}
 
@@ -109,7 +112,7 @@ function FieldZone({ type }: { type: ZoneType }) {
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Field search..."
+                  placeholder={t('fieldSearch')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-8 text-sm"
@@ -145,12 +148,14 @@ function FieldZone({ type }: { type: ZoneType }) {
       <div className="flex-1 overflow-y-auto p-2 space-y-2 ">
         {fields.length === 0 && (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground italic select-none">
-            No fields
+            {t('noFields')}
           </div>
         )}
 
         {search !== '' && filteredFields.length === 0 ? (
-          <div className="text-sm text-muted-foreground italic select-none">Not found</div>
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground italic select-none">
+            {t('notFound')}
+          </div>
         ) : (
           <>
             {filteredFields.map((field) =>

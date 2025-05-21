@@ -1,4 +1,5 @@
 import './index.css';
+import './utils/i18n/index.ts';
 
 import { createRoot } from 'react-dom/client';
 

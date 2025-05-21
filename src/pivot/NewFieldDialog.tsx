@@ -16,15 +16,17 @@ import { Plus, Save } from 'lucide-react';
 import * as monaco from 'monaco-editor';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { usePivotConfig, ZoneType } from './config/ConfigContext';
 
 function NewFieldDialog({ type }: { type: ZoneType }) {
   const { addNewField, getFieldsForZone, fields: originFields } = usePivotConfig();
-  const fields = getFieldsForZone(type);
-
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+
+  const fields = getFieldsForZone(type);
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   // Create ref once in the component
@@ -49,13 +51,13 @@ function NewFieldDialog({ type }: { type: ZoneType }) {
   const formSchema = z.object({
     id: z
       .string()
-      .min(2, { message: 'Field name must be at least 2 characters.' })
+      .min(2, { message: t('fieldNameMustBeAtLeast2') })
       .max(50)
       .refine((val) => !fields.some((field) => field.id === val), {
-        message: 'Field already exists',
+        message: t('fieldAlreadyExists'),
       }),
     expression: z.string().min(2, {
-      message: 'Expression must be at least 2 characters.',
+      message: t('expressionTooShort'),
     }),
   });
 
@@ -174,16 +176,14 @@ function NewFieldDialog({ type }: { type: ZoneType }) {
       <DialogTrigger asChild>
         <Button variant="outline">
           <Plus />
-          New field
+          {t('newField')}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="w-full max-w-xl m-auto sm:max-w-5xl ">
         <DialogHeader>
-          <DialogTitle>Add new field</DialogTitle>
-          <DialogDescription>
-            Create a new field. Click save when you are finished.
-          </DialogDescription>
+          <DialogTitle>{t('addNewField')}</DialogTitle>
+          <DialogDescription>{t('createANewField')}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -193,7 +193,7 @@ function NewFieldDialog({ type }: { type: ZoneType }) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="New field" {...field} autoFocus={true} />
+                    <Input placeholder={t('newField')} {...field} autoFocus={true} />
                   </FormControl>
                   {errors.id && <FormMessage>{errors.id.message}</FormMessage>}
                 </FormItem>
@@ -250,7 +250,7 @@ function NewFieldDialog({ type }: { type: ZoneType }) {
             <DialogFooter>
               <Button variant="outline" disabled={isButtonDisabled}>
                 <Save />
-                Save
+                {t('save')}
               </Button>
             </DialogFooter>
           </form>

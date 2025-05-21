@@ -1,8 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 import { Toaster } from './components/ui/sonner';
 import { FieldConfig } from './pivot/config/ConfigContext';
+import LanguageSwitcher from './pivot/LanguageSwitcher';
 import PivotFieldManager from './pivot/PivotFieldManager';
 
 function App() {
+  const { t, i18n } = useTranslation();
+
   const handleConfigChange = (config: FieldConfig[]) => {
     console.log('🔄 Configuration updated:', config);
   };
@@ -13,10 +18,17 @@ function App() {
 
   const aggregations = ['sum', 'avg', 'count', 'min', 'max'];
 
+  const handleLanguageChange = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
     <>
       <div className="flex flex-col max-w-5xl m-auto h-screen p-2">
-        <h1 className="text-xl font-bold m-4">Pivot Manager Demo</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-bold m-4">{t('title')}</h1>
+          <LanguageSwitcher handleLanguageChange={handleLanguageChange} />
+        </div>
         <PivotFieldManager
           fields={[
             'sales',
