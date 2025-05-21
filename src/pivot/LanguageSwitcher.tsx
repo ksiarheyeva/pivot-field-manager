@@ -2,12 +2,11 @@ import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Globe } from 'lucide-react';
 import { useState } from 'react';
 
 function LanguageSwitcher({
@@ -26,12 +25,11 @@ function LanguageSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="capitalize">
+          <Globe />
           {language}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Change language</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent>
         <DropdownMenuRadioGroup value={language} onValueChange={onLanguageChange}>
           <DropdownMenuRadioItem value="en">En</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="de">De</DropdownMenuRadioItem>
